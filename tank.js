@@ -9,7 +9,7 @@ const scaleX =  window.innerWidth/width ;
 const scaleY = window.innerHeight/height ;
 const scale = Math.min(scaleX, scaleY); // 确保地图能够完整显示
 
-const socket = new WebSocket('ws://localhost:8000');
+const socket = new WebSocket('ws://8.138.94.211:8000');
 
 let myTank = null;
 const walls=[];
