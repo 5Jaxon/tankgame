@@ -1,8 +1,14 @@
-// 安装 ws 库: npm install ws
+const express = require('express');
+const http = require('http');
 const WebSocket = require('ws');
+const path = require('path');
 
-// 创建 WebSocket 服务器
-const wss = new WebSocket.Server({ port: 8000 });
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+// 配置 Express 提供静态文件
+app.use('/public',express.static('./public')); // public 目录下放置你的 index.html 和 js 文件
 
 const width=2560;
 const height=1118;
