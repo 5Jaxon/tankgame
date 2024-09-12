@@ -7,8 +7,8 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 export const ctx = canvas.getContext("2d");
-export const width = 2700;
-export const height =1250;
+export const width = 2800;
+export const height =1260;
 
 const scaleX =  window.innerWidth/width ;
 const scaleY = window.innerHeight/height ;
