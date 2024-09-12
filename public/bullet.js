@@ -25,7 +25,7 @@ export default class Bullet {
         this.x += this.velocityX;
         this.y += this.velocityY;
         this.timer++;
-        this.checkCollisionWithTank(myTank);
+        const flag=this.checkCollisionWithTank(myTank);
 
         if (this.x - this.size < 0 || this.x + this.size > width) {
             this.velocityX = -this.velocityX;
@@ -48,18 +48,17 @@ export default class Bullet {
                 }
             }
         }
+        return flag;
     }
 
     checkCollisionWithTank(tank) {
         if (this.x + this.size > tank.x - tank.size / 2 &&
             this.x - this.size < tank.x + tank.size / 2 &&
             this.y + this.size > tank.y - tank.size / 2 &&
-            this.y - this.size < tank.y + tank.size / 2) {
-            tank.color='black';
-            socket.send(JSON.stringify({
-                type: 'player_hit',
-                id: myTank.id // 发送玩家 ID 给服务器
-            }));             
+            this.y - this.size < tank.y + tank.size / 2) {        
+            tank.beshot();
+            return true;
         }
+        return false;
     }
 }

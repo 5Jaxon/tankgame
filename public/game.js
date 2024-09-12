@@ -22,7 +22,7 @@ const otherTanks = {};
 
 export const bullets = [];
 const bulletMaxRebound = 1;
-
+export const maxlife=3;
 
 export const socket = new WebSocket('ws://8.138.94.211:8000');
 
@@ -49,6 +49,7 @@ socket.onmessage = (event) => {
         otherTanks[playerId].x = state.x;
         otherTanks[playerId].y = state.y;
         otherTanks[playerId].angle = state.angle;
+        otherTanks[playerId].lift = state.lift;
     } else if (message.type === 'player_left') {
         console.log(`Player ${message.id} left`);
         delete otherTanks[message.id]; // 移除离开的玩家坦克
@@ -150,8 +151,8 @@ function loop(){
     }
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bullet = bullets[i];
-        bullet.update();
-        if(bullet.timer > 500 || bullet.reboundTime > bulletMaxRebound){
+        let flag=bullet.update();
+        if(bullet.timer > 500 || bullet.reboundTime > bulletMaxRebound||flag){
             bullets.splice(i, 1);
             continue;
         }
@@ -169,7 +170,7 @@ function aftermap(){
     // console.log(window.innerHeight);
     
     const tankPosition = generateRandomTankPosition(walls, 30);
-    myTank = new Tank(tankPosition.x, tankPosition.y, 'blue', 30);
+    myTank = new Tank(tankPosition.x, tankPosition.y, 'blue', 30,3);
 
     window.onkeydown = (event) => {
         keyMap[event.code] = true;

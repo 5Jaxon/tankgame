@@ -1,4 +1,4 @@
-import { width, height, socket, ctx, bullets, walls } from "./game.js";
+import { width, height, socket, ctx, bullets, walls ,myTank,maxlife} from "./game.js";
 import Bullet from "./bullet.js";
 
 const shottingGap = 700;
@@ -13,6 +13,7 @@ export default class Tank {
         this.speed = 2.3;
         this.angle = 0;
         this.flag = false;
+        this.life=maxlife;
     }
 
     draw(){
@@ -24,6 +25,10 @@ export default class Tank {
         ctx.fillStyle = 'black';
         ctx.fillRect(0, -this.size / 6, this.size, this.size / 3);
         ctx.restore();
+        ctx.fillStyle = 'green';
+        ctx.fillRect(this.x-this.size/2, this.y+30, this.size/3*this.life, 5);
+        ctx.fillStyle = 'red';
+        ctx.fillRect(this.x+this.size/3*this.life-this.size/2, this.y+30,this.size/3*(maxlife-this.life), 5);
     }
 
     rotate(ratio) {
@@ -64,12 +69,24 @@ export default class Tank {
             }, shottingGap);
         }   
     }
+     
+    beshot(){
+        this.life--;
+        if(this.life<=0){
+            this.color='black';
+            socket.send(JSON.stringify({
+                type: 'player_hit',
+                id: myTank.id // 发送玩家 ID 给服务器
+            })); 
+        }
+    }
 
     sendState() {
         socket.send(JSON.stringify({
             x: this.x,
             y: this.y,
             angle: this.angle,
+            life:this.life,
             bullet: this.bullet
         }));
         this.bullet = null;
