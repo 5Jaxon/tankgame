@@ -16,6 +16,7 @@ const walls=[];
 const state={};
 const otherTanks = {};
 const bullets=[];
+const bulletMaxRebound = 2;
 
 socket.onopen = () => {
     console.log('Connected to WebSocket server');
@@ -149,7 +150,7 @@ class Bullet{
         this.timer=0;
         this.velocityX = Math.cos(this.angle) * this.speed;
         this.velocityY = Math.sin(this.angle) * this.speed;
-        this.rebound_time = 2;
+        this.reboundTime = 0;
     }
 
     draw() {
@@ -175,8 +176,8 @@ class Bullet{
         }
 
         for (let wall of walls) {
-            if (this.rebound_time > 0 && wall.isColliding(this)) {
-                this.rebound_time -= 1;
+            if (wall.isColliding(this)) {
+                this.reboundTime++;
                 if (this.x - this.size < wall.x || this.x + this.size > wall.x + wall.width) {
                     this.velocityX = -this.velocityX;
                 }
@@ -300,7 +301,7 @@ function loop(){
     }        
     for(const bullet of bullets){        
         bullet.update();        
-        if(bullet.timer>500){
+        if(bullet.timer>500 || bullet.reboundTime > bulletMaxRebound){
             bullets.shift();
             continue;
         }
