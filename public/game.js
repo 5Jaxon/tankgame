@@ -49,7 +49,7 @@ socket.onmessage = (event) => {
         otherTanks[playerId].x = state.x;
         otherTanks[playerId].y = state.y;
         otherTanks[playerId].angle = state.angle;
-        otherTanks[playerId].lift = state.lift;
+        otherTanks[playerId].life = state.life;
     } else if (message.type === 'player_left') {
         console.log(`Player ${message.id} left`);
         delete otherTanks[message.id]; // 移除离开的玩家坦克
