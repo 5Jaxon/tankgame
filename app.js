@@ -8,7 +8,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 // 配置 Express 提供静态文件
-app.use('/public',express.static('./public')); // public 目录下放置你的 index.html 和 js 文件
+app.use(express.static(path.join(__dirname, 'public'))); // public 目录下放置你的 index.html 和 js 文件
 
 const width=2560;
 const height=1118;
@@ -83,4 +83,9 @@ wss.on('connection', (ws) => {
             client.ws.send(JSON.stringify({ type: 'player_left', id: playerId }));
         });
     });
+});
+
+const PORT = process.env.PORT || 8000;
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
