@@ -59,10 +59,11 @@ class Tank{
         this.y=y;
         this.color=color;
         this.size=size;
-        this.speed=1.5;
+        this.speed=2;
         this.angle=0;
         this.flag=false;
     }
+
     draw(){
         ctx.save();
         ctx.translate(this.x,this.y);
@@ -73,6 +74,7 @@ class Tank{
         ctx.fillRect(0,-this.size/6,this.size,this.size/3);
         ctx.restore();
     }
+
     moveForward() {
         const nextX = this.x + Math.cos(this.angle) * this.speed;
         const nextY = this.y + Math.sin(this.angle) * this.speed;
@@ -141,12 +143,13 @@ class Bullet{
         this.x=x;
         this.y=y;
         this.angle=angle;
-        this.speed=5;
+        this.speed=12;
         this.size=3;
         this.color='black';
         this.timer=0;
         this.velocityX = Math.cos(this.angle) * this.speed;
         this.velocityY = Math.sin(this.angle) * this.speed;
+        this.rebound_time = 2;
     }
 
     draw() {
@@ -172,7 +175,8 @@ class Bullet{
         }
 
         for (let wall of walls) {
-            if (wall.isColliding(this)) {
+            if (this.rebound_time > 0 && wall.isColliding(this)) {
+                this.rebound_time -= 1;
                 if (this.x - this.size < wall.x || this.x + this.size > wall.x + wall.width) {
                     this.velocityX = -this.velocityX;
                 }
