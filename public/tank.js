@@ -1,8 +1,9 @@
-import { width, height, socket, ctx, bullets, walls ,myTank,maxlife} from "./game.js";
+import { width, height, socket, ctx, bullets, walls ,myTank} from "./game.js";
 import Bullet from "./bullet.js";
 
+const life = 100;
 const shottingGap = 700;
-const rotateAngle = 0.0005;
+const rotateAngle = 0.01;
 
 export default class Tank {
     constructor(x, y, color, size){
@@ -10,10 +11,10 @@ export default class Tank {
         this.y = y;
         this.color = color;
         this.size = size;
-        this.speed = 0.15;
+        this.speed = 2;
         this.angle = 0;
         this.flag = false;
-        this.life=maxlife;
+        this.life = life;
     }
 
     draw(){
@@ -25,19 +26,33 @@ export default class Tank {
         ctx.fillStyle = 'black';
         ctx.fillRect(0, -this.size / 6, this.size, this.size / 3);
         ctx.restore();
+
+        // remain life bar
         ctx.fillStyle = 'green';
-        ctx.fillRect(this.x-this.size/2, this.y+30, this.size/3*this.life, 5);
+        ctx.fillRect(
+            this.x - this.size / 2,
+            this.y + 30,
+            this.size / life * this.life,
+            5
+        );
+
+        // lose life bar
         ctx.fillStyle = 'red';
-        ctx.fillRect(this.x+this.size/3*this.life-this.size/2, this.y+30,this.size/3*(maxlife-this.life), 5);
+        ctx.fillRect(
+            this.x + this.size / life * this.life - this.size / 2,
+            this.y + 30,
+            this.size / life * (life - this.life), 
+            5
+        );
     }
 
-    rotate(ratio,delay) {
-        this.angle += rotateAngle * ratio*delay;
+    rotate(ratio) {
+        this.angle += rotateAngle * ratio;
     }
 
-    move(ratio,delay) {
-        const nextX = this.x + Math.cos(this.angle) * this.speed * ratio*delay;
-        const nextY = this.y + Math.sin(this.angle) * this.speed * ratio*delay;
+    move(ratio) {
+        const nextX = this.x + Math.cos(this.angle) * this.speed * ratio;
+        const nextY = this.y + Math.sin(this.angle) * this.speed * ratio;
         if (!this.checkCollisionWithWalls(nextX, nextY)) {
             this.x = nextX;
             this.y = nextY;
@@ -48,20 +63,25 @@ export default class Tank {
         for (let wall of walls) {
             if (x + this.size / 2 > wall.x && x - this.size / 2 < wall.x + wall.width &&
                 y + this.size / 2 > wall.y && y - this.size / 2 < wall.y + wall.height) {
-                return true; // 碰撞检测
+                return true;
             }
         }
         return x > width || x < 0 || y < 0 || y > height;
     }
 
-
-    shot(){
+    shot() {
         if (!this.flag) {
             const x = this.x + Math.cos(this.angle) * (this.size + 10) / 2;
             const y = this.y + Math.sin(this.angle) * (this.size + 10) / 2;
-            this.bullet = {x: x, y: y, angle: this.angle};
-            bullets.push(new Bullet(x, y, this.angle));
-            this.move(-2,20);
+            this.bullet = {
+                x: x,
+                y: y, 
+                angle: this.angle,
+                speed: 20,
+                backlash: -3
+            };
+            bullets.push(new Bullet(x, y, this.angle, 20, -3));
+            this.move(this.bullet.backlash);
 
             this.flag = true;
             setTimeout(() => {
@@ -70,13 +90,13 @@ export default class Tank {
         }   
     }
      
-    beshot(){
-        this.life--;
-        if(this.life<=0){
-            this.color='black';
+    beShot(damage){
+        this.life -= damage;
+        if(this.life <= 0){
+            this.color ='black';
             socket.send(JSON.stringify({
                 type: 'player_hit',
-                id: myTank.id // 发送玩家 ID 给服务器
+                id: myTank.id
             })); 
         }
     }

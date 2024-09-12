@@ -1,11 +1,13 @@
 import {width, height, ctx, socket, walls, myTank} from "./game.js";
 
 export default class Bullet {
-    constructor(x, y, angle){
+    constructor(x, y, angle, speed, backlash){
         this.x = x;
         this.y = y;
         this.angle = angle;
-        this.speed = 20;
+        this.speed = speed;
+        this.backlash = backlash;
+        this.damage = 34;
         this.size = 4;
         this.color = 'black';
         this.timer = 0;
@@ -25,7 +27,7 @@ export default class Bullet {
         this.x += this.velocityX;
         this.y += this.velocityY;
         this.timer++;
-        const flag=this.checkCollisionWithTank(myTank);
+        const flag = this.checkCollisionWithTank(myTank);
 
         if (this.x - this.size < 0 || this.x + this.size > width) {
             this.velocityX = -this.velocityX;
@@ -56,7 +58,7 @@ export default class Bullet {
             this.x - this.size < tank.x + tank.size / 2 &&
             this.y + this.size > tank.y - tank.size / 2 &&
             this.y - this.size < tank.y + tank.size / 2) {        
-            tank.beshot();
+            tank.beShot(this.damage);
             return true;
         }
         return false;

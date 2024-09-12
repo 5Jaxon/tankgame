@@ -8,13 +8,13 @@ canvas.height = window.innerHeight;
 
 export const ctx = canvas.getContext("2d");
 export const width = 2660;
-export const height =1260;
+export const height = 1260;
 
 const scaleX =  window.innerWidth/width ;
 const scaleY = window.innerHeight/height ;
 const scale = Math.min(scaleX, scaleY); // 确保地图能够完整显示
 
-export let lastime=0;
+export let lastTime = 0;
 
 export const walls=[];
 export let myTank = null;
@@ -23,7 +23,6 @@ const otherTanks = {};
 
 export const bullets = [];
 const bulletMaxRebound = 1;
-export const maxlife=3;
 
 export const socket = new WebSocket('ws://8.138.94.211:8000');
 
@@ -41,7 +40,7 @@ socket.onmessage = (event) => {
         const bullet=state.bullet;
 
         if (!otherTanks[playerId]) {
-            otherTanks[playerId] = new Tank(state.x, state.y, 'red', 30); // 添加新玩家的坦克
+            otherTanks[playerId] = new Tank(state.x, state.y, 'red', 30);
         }
         if(bullet){
             bullets.push(new Bullet(bullet.x, bullet.y, bullet.angle));
@@ -53,13 +52,13 @@ socket.onmessage = (event) => {
         otherTanks[playerId].life = state.life;
     } else if (message.type === 'player_left') {
         console.log(`Player ${message.id} left`);
-        delete otherTanks[message.id]; // 移除离开的玩家坦克
+        delete otherTanks[message.id];
     } else if (message.type === 'map_data') {
         for(const wall of message.map){
             walls.push(new Wall(wall.x,wall.y,wall.width,wall.height));
         }
         console.log('Map data received:', walls);
-        aftermap();
+        afterMap();
     }
 };
 
@@ -72,13 +71,13 @@ function isTankInWall(tank, walls) {
             tank.y + tank.size / 2 > wall.y && 
             tank.y - tank.size / 2 < wall.y + wall.height
         ) {
-            return true; // 坦克与墙壁重叠
+            return true;
         }
     }
-    return false; // 坦克位置合法
+    return false;
 }
 
-// 随机生成坦克位置，确保不与墙壁重叠
+
 function generateRandomTankPosition(walls, tankSize) {
     let x, y;
     let validPosition = false;
@@ -104,29 +103,29 @@ function handleTankMovement(delay) {
 
     let r = 1.0;
     if (keyMap['KeyW']) {
-        myTank.move(r,delay);
+        myTank.move(r * delay);
         change = true;
     }
     if (keyMap['KeyS']) {
-        myTank.move(-r,delay);
+        myTank.move(-r * delay);
         change = true;
     }
     if (keyMap['KeyA']) {
         r *= 3;
-        myTank.rotate(-r,delay);
+        myTank.rotate(-r * delay);
         change = true;
     }
     if (keyMap['KeyQ']) {
-        myTank.rotate(-r,delay);
+        myTank.rotate(-r * delay);
         change = true;
     }
     if (keyMap['KeyD']) {
         r *= 3;
-        myTank.rotate(r,delay);
+        myTank.rotate(r * delay);
         change = true;
     }
     if (keyMap['KeyE']) {
-        myTank.rotate(r,delay);
+        myTank.rotate(r * delay);
         change = true;
     }
     if (keyMap['Space']) {
@@ -138,15 +137,13 @@ function handleTankMovement(delay) {
 }
 
 function loop(timestamp){
-    // ctx.save();
-    // ctx.scale(scale,scale);
-    const delay=timestamp-lastime;
-    lastime=timestamp;
-    ctx.fillStyle='rgba(255,255,255,1)';
-    ctx.fillRect(0,0,width+30,height+30);    
+    const delay = (timestamp - lastTime) / 15;
+    lastTime = timestamp;
+    ctx.fillStyle ='rgba(255,255,255,1)';
+    ctx.fillRect(0, 0, width + 30, height + 30);    
     ctx.strokeStyle = 'black';
-    ctx.lineWidth = 2; // 边界线宽度
-    ctx.strokeRect(0, 0, width+2, height+2); // 画出地图的边界线
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, width + 2, height + 2);
     handleTankMovement(delay);
     myTank.draw();    
     for(const key in otherTanks){
@@ -155,7 +152,7 @@ function loop(timestamp){
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bullet = bullets[i];
         let flag=bullet.update();
-        if(bullet.timer > 500 || bullet.reboundTime > bulletMaxRebound||flag){
+        if(bullet.timer > 500 || bullet.reboundTime > bulletMaxRebound || flag){
             bullets.splice(i, 1);
             continue;
         }
@@ -164,22 +161,18 @@ function loop(timestamp){
     for(const wall of walls){
         wall.draw();
     }
-    // ctx.restore();
+
     requestAnimationFrame(loop);
 }
 
-function aftermap(){
-    // console.log(window.innerWidth);
-    // console.log(window.innerHeight);
-    
+function afterMap(){
     const tankPosition = generateRandomTankPosition(walls, 30);
-    myTank = new Tank(tankPosition.x, tankPosition.y, 'blue', 30,3);
+    myTank = new Tank(tankPosition.x, tankPosition.y, 'blue', 30, 3);
 
     window.onkeydown = (event) => {
         keyMap[event.code] = true;
     };
-    
-    // 键盘松开事件，更新按键状态
+
     window.onkeyup = (event) => {
         keyMap[event.code] = false;
     };
