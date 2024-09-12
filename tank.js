@@ -299,10 +299,11 @@ function loop(){
     for(const key in otherTanks){
         otherTanks[key].draw();
     }        
-    for(const bullet of bullets){        
-        bullet.update();        
-        if(bullet.timer>500 || bullet.reboundTime > bulletMaxRebound){
-            bullets.shift();
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        let bullet = bullets[i];
+        bullet.update();
+        if(bullet.timer > 500 || bullet.reboundTime > bulletMaxRebound){
+            bullets.splice(i, 1);
             continue;
         }
         bullet.draw();
