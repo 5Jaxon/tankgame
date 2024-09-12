@@ -11,7 +11,7 @@ const wss = new WebSocket.Server({ server });
 app.use(express.static(path.join(__dirname, 'public'))); // public 目录下放置你的 index.html 和 js 文件
 
 const width=2800;
-const height=1350;
+const height=1260;
 let clients = [];
 let walls=[];
 
