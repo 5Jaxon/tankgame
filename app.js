@@ -10,7 +10,7 @@ const wss = new WebSocket.Server({ server });
 // 配置 Express 提供静态文件
 app.use(express.static(path.join(__dirname, 'public'))); // public 目录下放置你的 index.html 和 js 文件
 
-const width=2600;
+const width=2660;
 const height=1260;
 let clients = [];
 let walls=[];
