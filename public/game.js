@@ -7,7 +7,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 export const ctx = canvas.getContext("2d");
-export const width = 2600;
+export const width = 2660;
 export const height =1260;
 
 const scaleX =  window.innerWidth/width ;
@@ -139,10 +139,10 @@ function loop(){
     // ctx.save();
     // ctx.scale(scale,scale);
     ctx.fillStyle='rgba(255,255,255,1)';
-    ctx.fillRect(0,0,width+5,height+5);    
+    ctx.fillRect(0,0,width+10,height+10);    
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 2; // 边界线宽度
-    ctx.strokeRect(0, 0, width+1, height+1); // 画出地图的边界线
+    ctx.strokeRect(0, 0, width+2, height+2); // 画出地图的边界线
     handleTankMovement();
     myTank.draw();    
     for(const key in otherTanks){
