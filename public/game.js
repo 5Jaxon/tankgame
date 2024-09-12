@@ -139,7 +139,7 @@ function loop(){
     // ctx.save();
     // ctx.scale(scale,scale);
     ctx.fillStyle='rgba(255,255,255,1)';
-    ctx.fillRect(0,0,width+10,height+10);    
+    ctx.fillRect(0,0,width+30,height+30);    
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 2; // 边界线宽度
     ctx.strokeRect(0, 0, width+2, height+2); // 画出地图的边界线
