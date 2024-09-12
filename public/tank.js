@@ -10,7 +10,7 @@ export default class Tank {
         this.y = y;
         this.color = color;
         this.size = size;
-        this.speed = 2.5;
+        this.speed = 2.3;
         this.angle = 0;
         this.flag = false;
     }
