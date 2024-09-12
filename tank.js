@@ -285,7 +285,7 @@ function loop(){
     // ctx.save();
     // ctx.scale(scale,scale);
     ctx.fillStyle='rgba(255,255,255,1)';
-    ctx.fillRect(0,0,window.innerWidth,window.innerHeight);    
+    ctx.fillRect(0,0,width,height);    
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 2; // 边界线宽度
     ctx.strokeRect(0, 0, width, height); // 画出地图的边界线
