@@ -11,12 +11,15 @@ const scale = Math.min(scaleX, scaleY); // 确保地图能够完整显示
 
 const socket = new WebSocket('ws://8.138.94.211:8000');
 
-let myTank = null;
 const walls=[];
 const state={};
+let myTank = null;
+const shottingGap = 700;
+const rotateAngle = 0.01;
 const otherTanks = {};
+
 const bullets=[];
-const bulletMaxRebound = 2;
+const bulletMaxRebound = 1;
 
 socket.onopen = () => {
     console.log('Connected to WebSocket server');
@@ -56,40 +59,34 @@ socket.onmessage = (event) => {
 
 class Tank{    
     constructor(x,y,color,size){
-        this.x=x;
-        this.y=y;
-        this.color=color;
-        this.size=size;
-        this.speed=2;
-        this.angle=0;
-        this.flag=false;
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.size = size;
+        this.speed = 2;
+        this.angle = 0;
+        this.flag = false;
     }
 
     draw(){
         ctx.save();
-        ctx.translate(this.x,this.y);
+        ctx.translate(this.x, this.y);
         ctx.rotate(this.angle);
-        ctx.fillStyle=this.color;
-        ctx.fillRect(-this.size/2,-this.size/2,this.size,this.size);
-        ctx.fillStyle='black';
-        ctx.fillRect(0,-this.size/6,this.size,this.size/3);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, -this.size / 6, this.size, this.size / 3);
         ctx.restore();
     }
 
-    moveForward() {
-        const nextX = this.x + Math.cos(this.angle) * this.speed;
-        const nextY = this.y + Math.sin(this.angle) * this.speed;
-        
-        if (!this.checkCollisionWithWalls(nextX, nextY)) {
-            this.x = nextX;
-            this.y = nextY;
-        }
+    rotate(ratio) {
+        this.angle += rotateAngle * ratio;
     }
-    
-    moveBackward() {
-        const nextX = this.x - Math.cos(this.angle) * this.speed;
-        const nextY = this.y - Math.sin(this.angle) * this.speed;
-    
+
+    move(ratio) {
+        const nextX = this.x + Math.cos(this.angle) * this.speed * ratio;
+        const nextY = this.y + Math.sin(this.angle) * this.speed * ratio;
+
         if (!this.checkCollisionWithWalls(nextX, nextY)) {
             this.x = nextX;
             this.y = nextY;
@@ -103,28 +100,22 @@ class Tank{
                 return true; // 碰撞检测
             }
         }
-        if(x>width||x<0||y<0||y>height)return true;
-        return false;
+        return x > width || x < 0 || y < 0 || y > height;
     }
 
-    rotateLeft() {
-        this.angle -= 0.02; // 每次按键旋转的弧度
-    }
-
-    rotateRight() {
-        this.angle += 0.02;
-    }
 
     shot(){
-        if(!this.flag){
-            const x=this.x+Math.cos(this.angle) * (this.size+10)/2;
-            const y=this.y+Math.sin(this.angle) * (this.size+10)/2;
-            this.bullet={x:x,y:y,angle:this.angle};
-            bullets.push(new Bullet(x,y,this.angle));
-            this.flag=true;
-            setTimeout(()=>{                
-                this.flag=false;
-            },500);            
+        if (!this.flag) {
+            const x = this.x + Math.cos(this.angle) * (this.size + 10) / 2;
+            const y = this.y + Math.sin(this.angle) * (this.size + 10) / 2;
+            this.bullet = {x: x, y: y, angle: this.angle};
+            bullets.push(new Bullet(x, y, this.angle));
+            this.move(-2);
+            
+            this.flag = true;
+            setTimeout(() => {
+                this.flag = false;
+            }, shottingGap);
         }   
     }
 
@@ -133,21 +124,21 @@ class Tank{
             x: this.x,
             y: this.y,
             angle: this.angle,
-            bullet:this.bullet
+            bullet: this.bullet
         }));
-        this.bullet=null;
+        this.bullet = null;
     }
 }
 
 class Bullet{
-    constructor(x,y,angle){
-        this.x=x;
-        this.y=y;
-        this.angle=angle;
-        this.speed=12;
-        this.size=3;
-        this.color='black';
-        this.timer=0;
+    constructor(x, y, angle){
+        this.x = x;
+        this.y = y;
+        this.angle = angle;
+        this.speed = 24;
+        this.size = 4;
+        this.color = 'black';
+        this.timer = 0;
         this.velocityX = Math.cos(this.angle) * this.speed;
         this.velocityY = Math.sin(this.angle) * this.speed;
         this.reboundTime = 0;
@@ -169,10 +160,12 @@ class Bullet{
 
         if (this.x - this.size < 0 || this.x + this.size > width) {
             this.velocityX = -this.velocityX;
+            this.reboundTime++;
         }
 
         if (this.y - this.size < 0 || this.y + this.size > height) {
             this.velocityY = -this.velocityY;
+            this.reboundTime++;
         }
 
         for (let wall of walls) {
@@ -181,7 +174,6 @@ class Bullet{
                 if (this.x - this.size < wall.x || this.x + this.size > wall.x + wall.width) {
                     this.velocityX = -this.velocityX;
                 }
-
                 if (this.y - this.size < wall.y || this.y + this.size > wall.y + wall.height) {
                     this.velocityY = -this.velocityY;
                 }
@@ -259,31 +251,44 @@ function generateRandomTankPosition(walls, tankSize) {
     return { x, y };
 }
 
-const keyMap={};
+const keyMap = {};
 
 function handleTankMovement() {
-    change=false;
+    change = false;
+
+    let r = 1.0;
     if (keyMap['KeyW']) {
-        myTank.moveForward();
-        change=true;
+        myTank.move(r);
+        change = true;
     }
     if (keyMap['KeyS']) {
-        myTank.moveBackward();
-        change=true;
+        myTank.move(-r);
+        change = true;
     }
     if (keyMap['KeyA']) {
-        myTank.rotateLeft();
-        change=true;
+        r *= 3;
+        myTank.rotate(-r);
+        change = true;
+    }
+    if (keyMap['KeyQ']) {
+        myTank.rotate(-r);
+        change = true;
     }
     if (keyMap['KeyD']) {
-        myTank.rotateRight();
-        change=true;
+        r *= 3;
+        myTank.rotate(r);
+        change = true;
+    }
+    if (keyMap['KeyE']) {
+        myTank.rotate(r);
+        change = true;
     }
     if (keyMap['Space']) {
         myTank.shot();
-        change=true;
+        change = true;
     }
-    if(change)myTank.sendState();
+
+    if (change) myTank.sendState();
 }
 
 function loop(){
@@ -298,7 +303,7 @@ function loop(){
     myTank.draw();    
     for(const key in otherTanks){
         otherTanks[key].draw();
-    }        
+    }
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bullet = bullets[i];
         bullet.update();
