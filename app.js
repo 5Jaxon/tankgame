@@ -10,8 +10,8 @@ const wss = new WebSocket.Server({ server });
 // 配置 Express 提供静态文件
 app.use(express.static(path.join(__dirname, 'public'))); // public 目录下放置你的 index.html 和 js 文件
 
-const width=2560;
-const height=1118;
+const width=2800;
+const height=1500;
 let clients = [];
 let walls=[];
 
@@ -27,7 +27,7 @@ function generateRandomWalls(numWalls, minWidth, maxWidth, minHeight, maxHeight)
     return walls;
 }
 
-walls=generateRandomWalls(25,50, 150, 20, 100);
+walls=generateRandomWalls(25,70, 200, 70, 150);
 
 wss.on('connection', (ws) => {
     // 新玩家连接时，给玩家分配一个唯一 ID

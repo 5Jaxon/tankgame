@@ -5,7 +5,7 @@ export default class Bullet {
         this.x = x;
         this.y = y;
         this.angle = angle;
-        this.speed = 24;
+        this.speed = 20;
         this.size = 4;
         this.color = 'black';
         this.timer = 0;
@@ -43,7 +43,7 @@ export default class Bullet {
                 if (this.x - this.size < wall.x || this.x + this.size > wall.x + wall.width) {
                     this.velocityX = -this.velocityX;
                 }
-                if (this.y - this.size < wall.y || this.y + this.size > wall.y + wall.height) {
+                else if (this.y - this.size < wall.y || this.y + this.size > wall.y + wall.height) {
                     this.velocityY = -this.velocityY;
                 }
             }
