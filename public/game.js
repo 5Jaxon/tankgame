@@ -139,10 +139,10 @@ function loop(){
     // ctx.save();
     // ctx.scale(scale,scale);
     ctx.fillStyle='rgba(255,255,255,1)';
-    ctx.fillRect(0,0,width,height);    
+    ctx.fillRect(0,0,width+2,height+2);    
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 2; // 边界线宽度
-    ctx.strokeRect(0, 0, width, height); // 画出地图的边界线
+    ctx.strokeRect(0, 0, width+1, height+1); // 画出地图的边界线
     handleTankMovement();
     myTank.draw();    
     for(const key in otherTanks){
