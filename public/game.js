@@ -7,8 +7,8 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 export const ctx = canvas.getContext("2d");
-export const width = 2800;
-export const height =1350;
+export const width = 2700;
+export const height =1250;
 
 const scaleX =  window.innerWidth/width ;
 const scaleY = window.innerHeight/height ;
@@ -139,7 +139,7 @@ function loop(){
     // ctx.save();
     // ctx.scale(scale,scale);
     ctx.fillStyle='rgba(255,255,255,1)';
-    ctx.fillRect(0,0,width+2,height+2);    
+    ctx.fillRect(0,0,width+5,height+5);    
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 2; // 边界线宽度
     ctx.strokeRect(0, 0, width+1, height+1); // 画出地图的边界线
