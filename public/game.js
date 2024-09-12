@@ -14,6 +14,7 @@ const scaleX =  window.innerWidth/width ;
 const scaleY = window.innerHeight/height ;
 const scale = Math.min(scaleX, scaleY); // 确保地图能够完整显示
 
+export let lastime=0;
 
 export const walls=[];
 export let myTank = null;
@@ -98,34 +99,34 @@ function generateRandomTankPosition(walls, tankSize) {
 
 const keyMap = {};
 
-function handleTankMovement() {
+function handleTankMovement(delay) {
     let change = false;
 
     let r = 1.0;
     if (keyMap['KeyW']) {
-        myTank.move(r);
+        myTank.move(r,delay);
         change = true;
     }
     if (keyMap['KeyS']) {
-        myTank.move(-r);
+        myTank.move(-r,delay);
         change = true;
     }
     if (keyMap['KeyA']) {
         r *= 3;
-        myTank.rotate(-r);
+        myTank.rotate(-r,delay);
         change = true;
     }
     if (keyMap['KeyQ']) {
-        myTank.rotate(-r);
+        myTank.rotate(-r,delay);
         change = true;
     }
     if (keyMap['KeyD']) {
         r *= 3;
-        myTank.rotate(r);
+        myTank.rotate(r,delay);
         change = true;
     }
     if (keyMap['KeyE']) {
-        myTank.rotate(r);
+        myTank.rotate(r,delay);
         change = true;
     }
     if (keyMap['Space']) {
@@ -136,15 +137,17 @@ function handleTankMovement() {
     if (change) myTank.sendState();
 }
 
-function loop(){
+function loop(timestamp){
     // ctx.save();
     // ctx.scale(scale,scale);
+    const delay=timestamp-lastime;
+    lastime=timestamp;
     ctx.fillStyle='rgba(255,255,255,1)';
     ctx.fillRect(0,0,width+30,height+30);    
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 2; // 边界线宽度
     ctx.strokeRect(0, 0, width+2, height+2); // 画出地图的边界线
-    handleTankMovement();
+    handleTankMovement(delay);
     myTank.draw();    
     for(const key in otherTanks){
         otherTanks[key].draw();

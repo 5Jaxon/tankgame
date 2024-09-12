@@ -2,7 +2,7 @@ import { width, height, socket, ctx, bullets, walls ,myTank,maxlife} from "./gam
 import Bullet from "./bullet.js";
 
 const shottingGap = 700;
-const rotateAngle = 0.01;
+const rotateAngle = 0.0005;
 
 export default class Tank {
     constructor(x, y, color, size){
@@ -10,7 +10,7 @@ export default class Tank {
         this.y = y;
         this.color = color;
         this.size = size;
-        this.speed = 2.3;
+        this.speed = 0.15;
         this.angle = 0;
         this.flag = false;
         this.life=maxlife;
@@ -31,13 +31,13 @@ export default class Tank {
         ctx.fillRect(this.x+this.size/3*this.life-this.size/2, this.y+30,this.size/3*(maxlife-this.life), 5);
     }
 
-    rotate(ratio) {
-        this.angle += rotateAngle * ratio;
+    rotate(ratio,delay) {
+        this.angle += rotateAngle * ratio*delay;
     }
 
-    move(ratio) {
-        const nextX = this.x + Math.cos(this.angle) * this.speed * ratio;
-        const nextY = this.y + Math.sin(this.angle) * this.speed * ratio;
+    move(ratio,delay) {
+        const nextX = this.x + Math.cos(this.angle) * this.speed * ratio*delay;
+        const nextY = this.y + Math.sin(this.angle) * this.speed * ratio*delay;
         if (!this.checkCollisionWithWalls(nextX, nextY)) {
             this.x = nextX;
             this.y = nextY;
@@ -61,7 +61,7 @@ export default class Tank {
             const y = this.y + Math.sin(this.angle) * (this.size + 10) / 2;
             this.bullet = {x: x, y: y, angle: this.angle};
             bullets.push(new Bullet(x, y, this.angle));
-            this.move(-2);
+            this.move(-2,20);
 
             this.flag = true;
             setTimeout(() => {
