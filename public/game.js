@@ -12,9 +12,10 @@ export const height = 1260;
 
 const scaleX =  window.innerWidth/width ;
 const scaleY = window.innerHeight/height ;
-const scale = Math.min(scaleX, scaleY); // 确保地图能够完整显示
+const scale = Math.min(scaleX, scaleY);
 
 export let lastTime = 0;
+export let End = 500;
 
 export const walls=[];
 export let myTank = null;
@@ -22,7 +23,6 @@ export let myTank = null;
 const otherTanks = {};
 
 export const bullets = [];
-const bulletMaxRebound = 1;
 
 export const socket = new WebSocket('ws://8.138.94.211:8000');
 
@@ -62,36 +62,32 @@ socket.onmessage = (event) => {
     }
 };
 
-
-function isTankInWall(tank, walls) {
+export function tankCollidedWithWalls(x, y, size) {
     for (let wall of walls) {
         if (
-            tank.x + tank.size / 2 > wall.x && 
-            tank.x - tank.size / 2 < wall.x + wall.width &&
-            tank.y + tank.size / 2 > wall.y && 
-            tank.y - tank.size / 2 < wall.y + wall.height
+            x + size / 2 > wall.x && 
+            x - size / 2 < wall.x + wall.width &&
+            y + size / 2 > wall.y &&
+            y - size / 2 < wall.y + wall.height
         ) {
             return true;
         }
     }
-    return false;
+
+    return (
+        x + size / 2 > width ||
+        x - size / 2 < 0 ||
+        y - size / 2 < 0 ||
+        y + size / 2 > height
+    );
 }
 
-
-function generateRandomTankPosition(walls, tankSize) {
+function generateRandomTankPosition(tankSize) {
     let x, y;
-    let validPosition = false;
-
-    while (!validPosition) {
+    do {
         x = Math.random() * (width - tankSize) + tankSize / 2;
         y = Math.random() * (height - tankSize) + tankSize / 2;
-        
-        const tempTank = { x: x, y: y, size: tankSize };
-
-        if (!isTankInWall(tempTank, walls)) {
-            validPosition = true;
-        }
-    }
+    } while (tankCollidedWithWalls(x, y, tankSize));
 
     return { x, y };
 }
@@ -146,19 +142,21 @@ function loop(timestamp){
     ctx.strokeRect(0, 0, width + 2, height + 2);
     handleTankMovement(delay);
     myTank.draw();    
-    for(const key in otherTanks){
+    for (const key in otherTanks) {
         otherTanks[key].draw();
     }
+
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bullet = bullets[i];
-        let flag=bullet.update();
-        if(bullet.timer > 500 || bullet.reboundTime > bulletMaxRebound || flag){
+        let flag = bullet.update();
+        if (flag || bullet.timer > End || bullet.reboundTime > bullet.maxRebound) {
             bullets.splice(i, 1);
             continue;
         }
         bullet.draw();
     }
-    for(const wall of walls){
+
+    for (const wall of walls) {
         wall.draw();
     }
 
@@ -166,7 +164,7 @@ function loop(timestamp){
 }
 
 function afterMap(){
-    const tankPosition = generateRandomTankPosition(walls, 30);
+    const tankPosition = generateRandomTankPosition(30);
     myTank = new Tank(tankPosition.x, tankPosition.y, 'blue', 30, 3);
 
     window.onkeydown = (event) => {

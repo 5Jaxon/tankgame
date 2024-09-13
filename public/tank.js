@@ -1,4 +1,4 @@
-import { width, height, socket, ctx, bullets, walls ,myTank} from "./game.js";
+import {socket, ctx, bullets, myTank, tankCollidedWithWalls} from "./game.js";
 import Bullet from "./bullet.js";
 
 const life = 100;
@@ -17,7 +17,7 @@ export default class Tank {
         this.life = life;
     }
 
-    draw(){
+    draw() {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.angle);
@@ -53,20 +53,10 @@ export default class Tank {
     move(ratio) {
         const nextX = this.x + Math.cos(this.angle) * this.speed * ratio;
         const nextY = this.y + Math.sin(this.angle) * this.speed * ratio;
-        if (!this.checkCollisionWithWalls(nextX, nextY)) {
+        if (!tankCollidedWithWalls(nextX, nextY, this.size)) {
             this.x = nextX;
             this.y = nextY;
         }
-    }
-    
-    checkCollisionWithWalls(x, y) {
-        for (let wall of walls) {
-            if (x + this.size / 2 > wall.x && x - this.size / 2 < wall.x + wall.width &&
-                y + this.size / 2 > wall.y && y - this.size / 2 < wall.y + wall.height) {
-                return true;
-            }
-        }
-        return x > width || x < 0 || y < 0 || y > height;
     }
 
     shot() {
@@ -90,7 +80,7 @@ export default class Tank {
         }   
     }
      
-    beShot(damage){
+    beShot(damage) {
         this.life -= damage;
         if(this.life <= 0){
             this.color ='black';
@@ -106,7 +96,7 @@ export default class Tank {
             x: this.x,
             y: this.y,
             angle: this.angle,
-            life:this.life,
+            life: this.life,
             bullet: this.bullet
         }));
         this.bullet = null;

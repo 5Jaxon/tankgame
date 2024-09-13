@@ -1,4 +1,8 @@
-import {width, height, ctx, socket, walls, myTank} from "./game.js";
+import {width, height, ctx, walls, myTank} from "./game.js";
+
+const Type = {
+    "Normal": 0
+}
 
 export default class Bullet {
     constructor(x, y, angle, speed, backlash){
@@ -14,6 +18,7 @@ export default class Bullet {
         this.velocityX = Math.cos(this.angle) * this.speed;
         this.velocityY = Math.sin(this.angle) * this.speed;
         this.reboundTime = 0;
+        this.maxRebound = 2;
     }
 
     draw() {
@@ -29,27 +34,34 @@ export default class Bullet {
         this.timer++;
         const flag = this.checkCollisionWithTank(myTank);
 
-        if (this.x - this.size < 0 || this.x + this.size > width) {
+        if (this.x < 0 || this.x > width) {
             this.velocityX = -this.velocityX;
             this.reboundTime++;
+            if (this.x < 0) this.x = 0;
+            else this.x = width;
         }
 
-        if (this.y - this.size < 0 || this.y + this.size > height) {
+        if (this.y < 0 || this.y > height) {
             this.velocityY = -this.velocityY;
             this.reboundTime++;
+            if (this.y < 0) this.y = 0;
+            else this.y = height;
         }
 
         for (let wall of walls) {
             if (wall.isColliding(this)) {
                 this.reboundTime++;
-                if (this.x - this.size < wall.x || this.x + this.size > wall.x + wall.width) {
+                this.x = this.x - this.velocityX;
+                this.y = this.y - this.velocityY;
+                if (Math.abs(this.velocityX) <= Math.abs(this.velocityY)) {
                     this.velocityX = -this.velocityX;
-                }
-                else if (this.y - this.size < wall.y || this.y + this.size > wall.y + wall.height) {
+                } else {
                     this.velocityY = -this.velocityY;
                 }
+                break;
             }
         }
+
         return flag;
     }
 
