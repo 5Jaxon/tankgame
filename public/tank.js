@@ -1,5 +1,5 @@
 import {socket, ctx, bullets, myTank, tankCollidedWithWalls} from "./game.js";
-import Bullet from "./bullet.js";
+import {normalBullet} from "./bullet.js";
 
 const life = 100;
 const shottingGap = 700;
@@ -63,14 +63,8 @@ export default class Tank {
         if (!this.flag) {
             const x = this.x + Math.cos(this.angle) * (this.size + 10) / 2;
             const y = this.y + Math.sin(this.angle) * (this.size + 10) / 2;
-            this.bullet = {
-                x: x,
-                y: y, 
-                angle: this.angle,
-                speed: 20,
-                backlash: -3
-            };
-            bullets.push(new Bullet(x, y, this.angle, 20, -3));
+            this.bullet = normalBullet(x, y, this.angle);
+            bullets.push(normalBullet(x, y, this.angle));
             this.move(this.bullet.backlash);
 
             this.flag = true;

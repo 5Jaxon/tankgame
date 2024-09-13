@@ -1,4 +1,4 @@
-import Bullet from "./bullet.js";
+import {normalBullet} from "./bullet.js";
 import Wall from "./wall.js";
 import Tank from "./tank.js";
 
@@ -37,13 +37,13 @@ socket.onmessage = (event) => {
     } else if (message.type === 'update') {
         const playerId = message.id;
         const state = message.state;
-        const bullet=state.bullet;
+        const bullet = state.bullet;
 
         if (!otherTanks[playerId]) {
             otherTanks[playerId] = new Tank(state.x, state.y, 'red', 30);
         }
         if(bullet){
-            bullets.push(new Bullet(bullet.x, bullet.y, bullet.angle));
+            bullets.push(normalBullet(bullet.x, bullet.y, bullet.angle));
         }
         
         otherTanks[playerId].x = state.x;

@@ -4,7 +4,7 @@ const Type = {
     "Normal": 0
 }
 
-export default class Bullet {
+class Bullet {
     constructor(x, y, angle, speed, backlash){
         this.x = x;
         this.y = y;
@@ -75,4 +75,8 @@ export default class Bullet {
         }
         return false;
     }
+}
+
+export function normalBullet(x, y, angle) {
+    return new Bullet(x, y, angle, 20, -3);
 }
