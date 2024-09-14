@@ -15,9 +15,13 @@ export default class Wall {
     }
 
     isColliding(bullet) {
-        return bullet.x >= this.x && 
-               bullet.x <= this.x + this.width &&
-               bullet.y >= this.y && 
-               bullet.y <= this.y + this.height;
+        return this.within(bullet.x, bullet.y);
+    }
+
+    within(x, y) {
+        return x >= this.x &&
+               x <= this.x + this.width &&
+               y >= this.y &&
+               y <= this.y + this.height;
     }
 }

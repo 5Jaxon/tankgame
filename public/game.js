@@ -1,4 +1,4 @@
-import {normalBullet} from "./bullet.js";
+import {BulletType, Bullet} from "./bullet.js";
 import Wall from "./wall.js";
 import Tank from "./tank.js";
 
@@ -15,11 +15,9 @@ const scaleY = window.innerHeight/height ;
 const scale = Math.min(scaleX, scaleY);
 
 export let lastTime = 0;
-export let End = 500;
 
 export const walls=[];
 export let myTank = null;
-
 const otherTanks = {};
 
 export const bullets = [];
@@ -43,7 +41,7 @@ socket.onmessage = (event) => {
             otherTanks[playerId] = new Tank(state.x, state.y, 'red', 30);
         }
         if(bullet){
-            bullets.push(normalBullet(bullet.x, bullet.y, bullet.angle));
+            bullets.push(new Bullet(bullet.x, bullet.y, bullet.angle, "Spring"));
         }
         
         otherTanks[playerId].x = state.x;
@@ -124,8 +122,11 @@ function handleTankMovement(delay) {
         myTank.rotate(r * delay);
         change = true;
     }
-    if (keyMap['Space']) {
-        myTank.shot();
+    if (keyMap['KeyJ']) {
+        myTank.shot(BulletType.Normal);
+        change = true;
+    } else if (keyMap['KeyK']) {
+        myTank.shot(BulletType.Spring);
         change = true;
     }
 
@@ -148,8 +149,8 @@ function loop(timestamp){
 
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bullet = bullets[i];
-        let flag = bullet.update();
-        if (flag || bullet.timer > End || bullet.reboundTime > bullet.maxRebound) {
+        let hitTank = bullet.update();
+        if (hitTank || bullet.timer > bullet.endTime || bullet.reboundTime > bullet.maxRebound) {
             bullets.splice(i, 1);
             continue;
         }
