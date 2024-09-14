@@ -26,7 +26,7 @@ export class Bullet {
             this.damage = 3;
             this.size = 3;
             this.maxRebound = 10;
-            this.endTime = 30;
+            this.endTime = 20;
             this.loadTime = 420;
         }
     
