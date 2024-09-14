@@ -65,8 +65,8 @@ export default class Tank {
         if (loaded) {
             const x = this.x + Math.cos(this.angle) * (this.size + 10) / 2;
             const y = this.y + Math.sin(this.angle) * (this.size + 10) / 2;
-            this.bullet = {x:x, y:y, angle:this.angle, type:type};
-            bullets.push(new Bullet(x, y, this.angle, type));
+            this.bullet = new Bullet(x,y,this.angle,type);
+            bullets.push(this.bullet);
             this.move(this.bullet.backlash);
 
             this.load(type);
