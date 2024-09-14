@@ -19,15 +19,15 @@ export class Bullet {
             this.size = 5;
             this.maxRebound = 2;
             this.endTime = 500;
-            this.loadTime = 700;
+            this.loadTime = 1200;
         } else if (this.BulletType === BulletType.Spring) {
             this.speed = 43;
-            this.backlash = -2;
+            this.backlash = -1;
             this.damage = 3;
             this.size = 3;
             this.maxRebound = 10;
-            this.endTime = 60;
-            this.loadTime = 200;
+            this.endTime = 30;
+            this.loadTime = 420;
         }
     
         this.timer = 0;

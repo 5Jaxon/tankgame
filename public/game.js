@@ -123,10 +123,10 @@ function handleTankMovement(delay) {
         change = true;
     }
     if (keyMap['KeyJ']) {
-        myTank.shot(BulletType.Normal);
+        myTank.shoot(BulletType.Normal);
         change = true;
     } else if (keyMap['KeyK']) {
-        myTank.shot(BulletType.Spring);
+        myTank.shoot(BulletType.Spring);
         change = true;
     }
 

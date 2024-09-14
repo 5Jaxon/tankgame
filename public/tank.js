@@ -1,8 +1,7 @@
 import {socket, ctx, bullets, myTank, tankCollidedWithWalls} from "./game.js";
-import {Bullet} from "./bullet.js";
+import {Bullet, BulletType} from "./bullet.js";
 
 const life = 100;
-const shottingGap = 700;
 const rotateAngle = 0.01;
 
 export default class Tank {
@@ -13,7 +12,8 @@ export default class Tank {
         this.size = size;
         this.speed = 2;
         this.angle = 0;
-        this.flag = false;
+        this.normalLoaded = true;
+        this.springLoaded = true;
         this.life = life;
     }
 
@@ -59,19 +59,35 @@ export default class Tank {
         }
     }
 
-    shot(type) {
-        if (!this.flag) {
+    shoot(type) {
+        let loaded = (this.normalLoaded && type === BulletType.Normal) ||
+                     (this.springLoaded && type === BulletType.Spring);
+        if (loaded) {
             const x = this.x + Math.cos(this.angle) * (this.size + 10) / 2;
             const y = this.y + Math.sin(this.angle) * (this.size + 10) / 2;
             this.bullet = new Bullet(x, y, this.angle, type);
             bullets.push(new Bullet(x, y, this.angle, type));
             this.move(this.bullet.backlash);
 
-            this.flag = true;
-            setTimeout(() => {
-                this.flag = false;
-            }, shottingGap);
+            this.load(type);
         }   
+    }
+    
+    load(type) {
+        let loadTime = this.bullet.loadTime;
+        if (type === BulletType.Normal) {
+            this.normalLoaded = false;
+        } else if (type === BulletType.Spring) {
+            this.springLoaded = false;
+        }
+
+        setTimeout(() => {
+            if (type === BulletType.Normal) {
+                this.normalLoaded = true;
+            } else if (type === BulletType.Spring) {
+                this.springLoaded = true;
+            }
+        }, loadTime);
     }
      
     beShot(damage) {
