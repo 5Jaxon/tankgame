@@ -41,7 +41,7 @@ socket.onmessage = (event) => {
             otherTanks[playerId] = new Tank(state.x, state.y, 'red', 30);
         }
         if(bullet){
-            bullets.push(new Bullet(bullet.x, bullet.y, bullet.angle, bullet.type));
+            bullets.push(new Bullet(bullet.x, bullet.y, bullet.angle, bullet.BulletType));
         }
         
         otherTanks[playerId].x = state.x;
