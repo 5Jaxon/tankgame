@@ -14,20 +14,20 @@ export class Bullet {
 
         if (this.BulletType === BulletType.Normal) {
             this.speed = 20;
-            this.backlash = -3;
-            this.damage = 34;
+            this.backlash = -4;
+            this.damage = 42;
             this.size = 5;
             this.maxRebound = 2;
-            this.endTime = 500;
-            this.loadTime = 1200;
+            this.endTime = 400;
+            this.loadTime = 1800;
         } else if (this.BulletType === BulletType.Spring) {
-            this.speed = 43;
-            this.backlash = -1;
-            this.damage = 6;
-            this.size = 3;
+            this.speed = 37;
+            this.backlash = -0.5;
+            this.damage = 13;
+            this.size = 3.5;
             this.maxRebound = 10;
-            this.endTime = 20;
-            this.loadTime = 420;
+            this.endTime = 60;
+            this.loadTime = 320;
         }
     
         this.timer = 0;
@@ -48,6 +48,14 @@ export class Bullet {
         this.x += this.velocityX;
         this.y += this.velocityY;
         this.timer++;
+        if (
+            this.type === BulletType.Spring &&
+            this.timer % 5 == 0
+        ) {
+            this.damage -= 0.5;
+            this.weaken(0.7);
+        }
+
         const hit = this.checkCollisionWithTank(myTank);
 
         if (this.x < 0 || this.x > width) {
@@ -55,6 +63,7 @@ export class Bullet {
             this.reboundTime++;
             if (this.x < 0) this.x = 0;
             else this.x = width;
+            this.weaken(0.9);
         }
 
         if (this.y < 0 || this.y > height) {
@@ -62,6 +71,7 @@ export class Bullet {
             this.reboundTime++;
             if (this.y < 0) this.y = 0;
             else this.y = height;
+            this.weaken(0.9);
         }
 
         for (let wall of walls) {
@@ -76,6 +86,7 @@ export class Bullet {
                     } else {
                         this.velocityY = -this.velocityY;
                     }
+                    this.weaken(0.5);
                 } else if (this.BulletType === BulletType.Spring) {
                     let detectLen = Math.abs(this.velocityX) + Math.abs(this.velocityY);
                     let l_x = this.x - detectLen, r_x = this.x + detectLen;
@@ -84,6 +95,7 @@ export class Bullet {
                     } else {                                                    // horizontally hit
                         this.velocityY = -this.velocityY;
                     }
+                    this.weaken(0.7)
                 }
 
                 break;
@@ -102,6 +114,12 @@ export class Bullet {
             return true;
         }
         return false;
+    }
+
+    weaken(ratio) {
+        this.velocityX *= ratio;
+        this.velocityY *= ratio;
+        this.damage *= ratio * ratio
     }
 }
 

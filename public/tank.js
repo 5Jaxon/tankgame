@@ -2,7 +2,7 @@ import {socket, ctx, bullets, myTank, tankCollidedWithWalls} from "./game.js";
 import {Bullet, BulletType} from "./bullet.js";
 
 const life = 100;
-const rotateAngle = 0.01;
+const rotateAngle = 0.008;
 
 export default class Tank {
     constructor(x, y, color, size){
@@ -10,7 +10,7 @@ export default class Tank {
         this.y = y;
         this.color = color;
         this.size = size;
-        this.speed = 2;
+        this.speed = 2.5;
         this.angle = 0;
         this.normalLoaded = true;
         this.springLoaded = true;
