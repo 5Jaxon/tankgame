@@ -23,7 +23,7 @@ export class Bullet {
         } else if (this.BulletType === BulletType.Spring) {
             this.speed = 43;
             this.backlash = -1;
-            this.damage = 3;
+            this.damage = 6;
             this.size = 3;
             this.maxRebound = 10;
             this.endTime = 20;
