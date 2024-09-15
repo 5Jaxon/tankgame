@@ -1,9 +1,37 @@
-import {width, height, ctx, walls, myTank} from "./game.js";
+import {width, height, ctx, walls, myTank, bullets} from "./game.js";
 
 export const BulletType = {
-    "Normal": 0,
-    "Spring": 1,
-}
+    Normal: {
+        id: 0,
+        speed: 23,
+        backlash: -4,
+        damage: 42,
+        size: 5,
+        maxRebound: 2,
+        endTime: 400,
+        loadTime: 2000,
+    },
+    Spring: {
+        id: 1,
+        speed: 37,
+        backlash: -0.5,
+        damage: 13,
+        size: 3.5,
+        maxRebound: 10,
+        endTime: 60,
+        loadTime: 320,
+    },
+    Split: {
+        id: 2,
+        speed: 20,
+        backlash: -2,
+        damage: 24,
+        size: 7,
+        maxRebound: 0,
+        endTime: 70,
+        loadTime: 5200,
+    },
+};
 
 export class Bullet {
     constructor(x, y, angle, type) {
@@ -11,28 +39,20 @@ export class Bullet {
         this.y = y;
         this.angle = angle;
         this.BulletType = type;
-
-        if (this.BulletType === BulletType.Normal) {
-            this.speed = 20;
-            this.backlash = -4;
-            this.damage = 42;
-            this.size = 5;
-            this.maxRebound = 2;
-            this.endTime = 400;
-            this.loadTime = 1800;
-        } else if (this.BulletType === BulletType.Spring) {
-            this.speed = 37;
-            this.backlash = -0.5;
-            this.damage = 13;
-            this.size = 3.5;
-            this.maxRebound = 10;
-            this.endTime = 60;
-            this.loadTime = 320;
-        }
-    
         this.timer = 0;
         this.color = 'black';
         this.reboundTime = 0;
+
+        const { speed, backlash, damage, size, maxRebound, endTime, loadTime } = 
+            Object.values(BulletType).find(b => b.id === this.BulletType.id);
+        this.speed = speed;
+        this.backlash = backlash;
+        this.damage = damage;
+        this.size = size;
+        this.maxRebound = maxRebound;
+        this.endTime = endTime;
+        this.loadTime = loadTime;
+
         this.velocityX = Math.cos(this.angle) * this.speed;
         this.velocityY = Math.sin(this.angle) * this.speed;
     }
@@ -47,47 +67,79 @@ export class Bullet {
     update() {
         this.x += this.velocityX;
         this.y += this.velocityY;
+        if (this.hitTank(myTank) || this.checkTime()) {
+            return true;
+        } else if (this.hitWall() || this.hitBorder()) {
+            return this.reboundTime > this.maxRebound;
+        }
+    }
+
+    checkTime() {
         this.timer++;
         if (
             this.type === BulletType.Spring &&
             this.timer % 5 == 0
         ) {
-            this.damage -= 0.5;
-            this.weaken(0.7);
+            this.weaken(0.95);
+        } else if (
+            this.timer == this.endTime && 
+            this.type === Bullet.Split
+        ) {
+            this.split();
         }
+        return this.timer > this.endTime;
+    }
 
-        const hit = this.checkCollisionWithTank(myTank);
-
+    hitBorder() {
+        let hit = false;
         if (this.x < 0 || this.x > width) {
-            this.velocityX = -this.velocityX;
             this.reboundTime++;
-            if (this.x < 0) this.x = 0;
-            else this.x = width;
+            if (this.x < 0)
+                this.x = 1;
+            else
+                this.x = width - 1;
+        
+            this.velocityX = -this.velocityX;
             this.weaken(0.9);
+            hit = true;
         }
 
         if (this.y < 0 || this.y > height) {
-            this.velocityY = -this.velocityY;
             this.reboundTime++;
-            if (this.y < 0) this.y = 0;
-            else this.y = height;
+            if (this.y < 0)
+                this.y = 1;
+            else 
+                this.y = height - 1;
+        
+            this.velocityY = -this.velocityY;
             this.weaken(0.9);
+            hit = true;
         }
 
+        if (hit && this.BulletType == BulletType.Split) {
+            this.split();
+        }
+        return hit;
+    }
+
+    hitWall() {
+        let hit = false;
         for (let wall of walls) {
             if (wall.isColliding(this)) {
+                hit = true;
                 this.reboundTime++;
+            
                 this.x = this.x - this.velocityX;
                 this.y = this.y - this.velocityY;
-
-                if (this.BulletType === BulletType.Normal) {
+                if (this.BulletType == BulletType.Normal) {
                     if (Math.abs(this.velocityX) <= Math.abs(this.velocityY)) {
                         this.velocityX = -this.velocityX;
                     } else {
                         this.velocityY = -this.velocityY;
                     }
-                    this.weaken(0.5);
-                } else if (this.BulletType === BulletType.Spring) {
+                    this.weaken(0.6);
+                } else if (this.BulletType == BulletType.Spring) {
+                    // this algorithm may lose effect when bullet cast diagonally into corner
                     let detectLen = Math.abs(this.velocityX) + Math.abs(this.velocityY);
                     let l_x = this.x - detectLen, r_x = this.x + detectLen;
                     if (wall.within(l_x, this.y) || wall.within(r_x, this.y)) { // vertically hit
@@ -96,21 +148,25 @@ export class Bullet {
                         this.velocityY = -this.velocityY;
                     }
                     this.weaken(0.7)
+                } else if (this.BulletType == BulletType.Split) {
+                    this.split();
                 }
 
                 break;
             }
         }
-
         return hit;
     }
 
-    checkCollisionWithTank(tank) {
+    hitTank(tank) {
         if (this.x + this.size > tank.x - tank.size / 2 &&
             this.x - this.size < tank.x + tank.size / 2 &&
             this.y + this.size > tank.y - tank.size / 2 &&
             this.y - this.size < tank.y + tank.size / 2) {        
             tank.beShot(this.damage);
+            if (this.type === BulletType.Split) {
+                this.split();
+            }
             return true;
         }
         return false;
@@ -119,7 +175,18 @@ export class Bullet {
     weaken(ratio) {
         this.velocityX *= ratio;
         this.velocityY *= ratio;
-        this.damage *= ratio * ratio
+        this.damage *= ratio * ratio;
+    }
+
+    split() {
+        if (this.BulletType != BulletType.Split) { return; }
+        let num = 27;
+        while (num-- > 0) {
+            let angle = Math.random() * Math.PI * 2;
+            let piece = new Bullet(this.x, this.y, angle, BulletType.Spring);
+            piece.weaken(0.7);
+            bullets.push(piece);
+        }
     }
 }
 

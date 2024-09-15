@@ -14,6 +14,7 @@ export default class Tank {
         this.angle = 0;
         this.normalLoaded = true;
         this.springLoaded = true;
+        this.splitLoaded = true;
         this.life = life;
     }
 
@@ -60,25 +61,35 @@ export default class Tank {
     }
 
     shoot(type) {
-        let loaded = (this.normalLoaded && type === BulletType.Normal) ||
-                     (this.springLoaded && type === BulletType.Spring);
+        let loaded = (type === BulletType.Normal && this.normalLoaded) ||
+                     (type === BulletType.Spring && this.springLoaded) ||
+                     (type === BulletType.Split && this.splitLoaded);
         if (loaded) {
             const x = this.x + Math.cos(this.angle) * (this.size + 10) / 2;
             const y = this.y + Math.sin(this.angle) * (this.size + 10) / 2;
-            this.bullet = new Bullet(x,y,this.angle,type);
-            bullets.push(this.bullet);
-            this.move(this.bullet.backlash);
-
-            this.load(type);
+            let bullet = new Bullet(x, y, this.angle, type);
+            bullets.push(bullet);
+            this.move(bullet.backlash);
+            
+            this.bullet = {
+                x: x,
+                y: y,
+                angle: this.angle,
+                loadTime: bullet.loadTime,
+                BulletType: type
+            };
+            this.reload(type);
         }   
     }
     
-    load(type) {
+    reload(type) {
         let loadTime = this.bullet.loadTime;
         if (type === BulletType.Normal) {
             this.normalLoaded = false;
         } else if (type === BulletType.Spring) {
             this.springLoaded = false;
+        } else if (type === BulletType.Split) {
+            this.splitLoaded = false;
         }
 
         setTimeout(() => {
@@ -86,6 +97,8 @@ export default class Tank {
                 this.normalLoaded = true;
             } else if (type === BulletType.Spring) {
                 this.springLoaded = true;
+            } else if (type === BulletType.Split) {
+                this.splitLoaded = true;
             }
         }, loadTime);
     }
