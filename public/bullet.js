@@ -179,7 +179,7 @@ export class Bullet {
     }
 
     split() {
-        if (this.BulletType != BulletType.Split) { return; }
+        if (this.BulletType.id != BulletType.Split.id) { return; }
         let num = 27;
         while (num-- > 0) {
             let angle = Math.random() * Math.PI * 2;
