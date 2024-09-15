@@ -148,7 +148,7 @@ export class Bullet {
                         this.velocityY = -this.velocityY;
                     }
                     this.weaken(0.7)
-                } else if (this.BulletType == BulletType.Split) {
+                } else if (this.BulletType.id == BulletType.Split.id) {
                     this.split();
                 }
 
