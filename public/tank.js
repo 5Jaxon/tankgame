@@ -61,9 +61,9 @@ export default class Tank {
     }
 
     shoot(type) {
-        let loaded = (type === BulletType.Normal && this.normalLoaded) ||
-                     (type === BulletType.Spring && this.springLoaded) ||
-                     (type === BulletType.Split && this.splitLoaded);
+        let loaded = (type.id === BulletType.Normal.id && this.normalLoaded) ||
+                     (type.id === BulletType.Spring.id && this.springLoaded) ||
+                     (type.id === BulletType.Split.id && this.splitLoaded);
         if (loaded) {
             const x = this.x + Math.cos(this.angle) * (this.size + 10) / 2;
             const y = this.y + Math.sin(this.angle) * (this.size + 10) / 2;
@@ -78,26 +78,26 @@ export default class Tank {
                 loadTime: bullet.loadTime,
                 BulletType: type
             };
-            this.reload(type);
+            this.reload(type.id);
         }   
     }
     
     reload(type) {
         let loadTime = this.bullet.loadTime;
-        if (type === BulletType.Normal) {
+        if (type === BulletType.Normal.id) {
             this.normalLoaded = false;
-        } else if (type === BulletType.Spring) {
+        } else if (type === BulletType.Spring.id) {
             this.springLoaded = false;
-        } else if (type === BulletType.Split) {
+        } else if (type === BulletType.Split.id) {
             this.splitLoaded = false;
         }
 
         setTimeout(() => {
-            if (type === BulletType.Normal) {
+            if (type === BulletType.Normal.id) {
                 this.normalLoaded = true;
-            } else if (type === BulletType.Spring) {
+            } else if (type === BulletType.Spring.id) {
                 this.springLoaded = true;
-            } else if (type === BulletType.Split) {
+            } else if (type === BulletType.Split.id) {
                 this.splitLoaded = true;
             }
         }, loadTime);

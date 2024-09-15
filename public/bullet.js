@@ -38,13 +38,14 @@ export class Bullet {
         this.x = x;
         this.y = y;
         this.angle = angle;
-        this.BulletType = type;
         this.timer = 0;
         this.color = 'black';
         this.reboundTime = 0;
-
+        
+        let bulletType = type;
+        this.type = bulletType.id;
         const { speed, backlash, damage, size, maxRebound, endTime, loadTime } = 
-            Object.values(BulletType).find(b => b.id === this.BulletType.id);
+            Object.values(BulletType).find(b => b.id === this.type);
         this.speed = speed;
         this.backlash = backlash;
         this.damage = damage;
@@ -77,13 +78,13 @@ export class Bullet {
     checkTime() {
         this.timer++;
         if (
-            this.type === BulletType.Spring &&
+            this.type === BulletType.Spring.id &&
             this.timer % 5 == 0
         ) {
             this.weaken(0.95);
         } else if (
             this.timer == this.endTime && 
-            this.type === Bullet.Split
+            this.type === BulletType.Split.id
         ) {
             this.split();
         }
@@ -116,7 +117,7 @@ export class Bullet {
             hit = true;
         }
 
-        if (hit && this.BulletType == BulletType.Split) {
+        if (hit && this.type == BulletType.Split.id) {
             this.split();
         }
         return hit;
@@ -131,14 +132,14 @@ export class Bullet {
             
                 this.x = this.x - this.velocityX;
                 this.y = this.y - this.velocityY;
-                if (this.BulletType == BulletType.Normal) {
+                if (this.type == BulletType.Normal.id) {
                     if (Math.abs(this.velocityX) <= Math.abs(this.velocityY)) {
                         this.velocityX = -this.velocityX;
                     } else {
                         this.velocityY = -this.velocityY;
                     }
                     this.weaken(0.6);
-                } else if (this.BulletType == BulletType.Spring) {
+                } else if (this.type == BulletType.Spring.id) {
                     // this algorithm may lose effect when bullet cast diagonally into corner
                     let detectLen = Math.abs(this.velocityX) + Math.abs(this.velocityY);
                     let l_x = this.x - detectLen, r_x = this.x + detectLen;
@@ -148,7 +149,7 @@ export class Bullet {
                         this.velocityY = -this.velocityY;
                     }
                     this.weaken(0.7)
-                } else if (this.BulletType.id == BulletType.Split.id) {
+                } else if (this.type == BulletType.Split.id) {
                     this.split();
                 }
 
@@ -164,7 +165,7 @@ export class Bullet {
             this.y + this.size > tank.y - tank.size / 2 &&
             this.y - this.size < tank.y + tank.size / 2) {        
             tank.beShot(this.damage);
-            if (this.type === BulletType.Split) {
+            if (this.type === BulletType.Split.id) {
                 this.split();
             }
             return true;
@@ -179,8 +180,8 @@ export class Bullet {
     }
 
     split() {
-        if (this.BulletType.id != BulletType.Split.id) { return; }
-        let num = 27;
+        if (this.type != BulletType.Split.id) { return; }
+        let num = 54;
         while (num-- > 0) {
             let angle = Math.random() * Math.PI * 2;
             let piece = new Bullet(this.x, this.y, angle, BulletType.Spring);
