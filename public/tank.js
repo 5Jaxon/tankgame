@@ -8,14 +8,17 @@ export default class Tank {
     constructor(x, y, color, size){
         this.x = x;
         this.y = y;
+        this.life = life;
         this.color = color;
         this.size = size;
         this.speed = 2.5;
         this.angle = 0;
-        this.normalLoaded = true;
-        this.springLoaded = true;
-        this.splitLoaded = true;
-        this.life = life;
+        this.loaded = [true, true, true];
+        this.magazine = [
+            BulletType.Normal.loadage,
+            BulletType.Spring.loadage,
+            BulletType.Split.loadage
+        ];
     }
 
     draw() {
@@ -61,10 +64,7 @@ export default class Tank {
     }
 
     shoot(type) {
-        let loaded = (type.id === BulletType.Normal.id && this.normalLoaded) ||
-                     (type.id === BulletType.Spring.id && this.springLoaded) ||
-                     (type.id === BulletType.Split.id && this.splitLoaded);
-        if (loaded) {
+        if (this.loaded[type.id]) {
             const x = this.x + Math.cos(this.angle) * (this.size + 10) / 2;
             const y = this.y + Math.sin(this.angle) * (this.size + 10) / 2;
             let bullet = new Bullet(x, y, this.angle, type);
@@ -78,29 +78,30 @@ export default class Tank {
                 loadTime: bullet.loadTime,
                 BulletType: type
             };
-            this.reload(type.id);
+
+            this.magazine[type.id]--;
+            if (this.magazine[type.id] <= 0) {
+                this.reload(type.id, type.loadTime);
+                this.magazine[type.id] = type.loadage;
+            } else {
+                this.cooling(type.id, type.interval);
+            }
         }   
     }
     
-    reload(type) {
-        let loadTime = this.bullet.loadTime;
-        if (type === BulletType.Normal.id) {
-            this.normalLoaded = false;
-        } else if (type === BulletType.Spring.id) {
-            this.springLoaded = false;
-        } else if (type === BulletType.Split.id) {
-            this.splitLoaded = false;
-        }
+    reload(type, loadTime) {
+        this.loaded[type] = false;
 
         setTimeout(() => {
-            if (type === BulletType.Normal.id) {
-                this.normalLoaded = true;
-            } else if (type === BulletType.Spring.id) {
-                this.springLoaded = true;
-            } else if (type === BulletType.Split.id) {
-                this.splitLoaded = true;
-            }
+            this.loaded[type] = true;
         }, loadTime);
+    }
+
+    cooling(type, interval) {
+        this.loaded[type] = false;
+        setTimeout(() => {
+            this.loaded[type] = true;
+        }, interval);
     }
      
     beShot(damage) {

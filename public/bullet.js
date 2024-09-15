@@ -9,7 +9,9 @@ export const BulletType = {
         size: 5,
         maxRebound: 2,
         endTime: 400,
-        loadTime: 2000,
+        loadage: 2,
+        interval: 120,
+        loadTime: 4000,
     },
     Spring: {
         id: 1,
@@ -19,7 +21,9 @@ export const BulletType = {
         size: 3.5,
         maxRebound: 10,
         endTime: 60,
-        loadTime: 320,
+        loadage: 12,
+        interval: 70,
+        loadTime: 1300,
     },
     Split: {
         id: 2,
@@ -29,6 +33,8 @@ export const BulletType = {
         size: 7,
         maxRebound: 0,
         endTime: 70,
+        loadage: 1,
+        interval: 0,
         loadTime: 5200,
     },
 };
