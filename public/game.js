@@ -128,6 +128,9 @@ function handleTankMovement(delay) {
     } else if (keyMap['KeyK']) {
         myTank.shoot(BulletType.Spring);
         change = true;
+    } else if (keyMap['KeyH']) {
+        myTank.shoot(BulletType.Split)
+        change = true;
     }
 
     if (change) myTank.sendState();
@@ -149,8 +152,7 @@ function loop(timestamp){
 
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bullet = bullets[i];
-        let hitTank = bullet.update();
-        if (hitTank || bullet.timer > bullet.endTime || bullet.reboundTime > bullet.maxRebound) {
+        if (bullet.update()) {
             bullets.splice(i, 1);
             continue;
         }
