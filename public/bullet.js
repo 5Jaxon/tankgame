@@ -74,11 +74,11 @@ export class Bullet {
     }
 
     update() {
-        this.x += this.velocityX;
-        this.y += this.velocityY;
+        this.x = (this.x + this.velocityX + width) % width;
+        this.y = (this.y + this.velocityY + height) % height;
         if (this.hitTank(myTank) || this.checkTime()) {
             return true;
-        } else if (this.hitWall() || this.hitBorder()) {
+        } else if (this.hitWall()) {
             return this.reboundTime > this.maxRebound;
         }
     }
@@ -97,38 +97,6 @@ export class Bullet {
             this.split();
         }
         return this.timer > this.endTime;
-    }
-
-    hitBorder() {
-        let hit = false;
-        if (this.x < 0 || this.x > width) {
-            this.reboundTime++;
-            if (this.x < 0)
-                this.x = 1;
-            else
-                this.x = width - 1;
-        
-            this.velocityX = -this.velocityX;
-            this.weaken(0.9);
-            hit = true;
-        }
-
-        if (this.y < 0 || this.y > height) {
-            this.reboundTime++;
-            if (this.y < 0)
-                this.y = 1;
-            else 
-                this.y = height - 1;
-        
-            this.velocityY = -this.velocityY;
-            this.weaken(0.9);
-            hit = true;
-        }
-
-        if (hit && this.type == BulletType.Split.id) {
-            this.split();
-        }
-        return hit;
     }
 
     hitWall() {
