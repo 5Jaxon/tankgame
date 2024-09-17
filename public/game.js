@@ -60,34 +60,15 @@ socket.onmessage = (event) => {
     }
 };
 
-export function tankCollidedWithWalls(x, y, size) {
-    for (let wall of walls) {
-        if (
-            x + size / 2 > wall.x && 
-            x - size / 2 < wall.x + wall.width &&
-            y + size / 2 > wall.y &&
-            y - size / 2 < wall.y + wall.height
-        ) {
-            return true;
-        }
-    }
-
-    return (
-        x + size / 2 > width ||
-        x - size / 2 < 0 ||
-        y - size / 2 < 0 ||
-        y + size / 2 > height
-    );
-}
-
-function generateRandomTankPosition(tankSize) {
-    let x, y;
+function generateTank(tankSize) {
+    let tank;
     do {
-        x = Math.random() * (width - tankSize) + tankSize / 2;
-        y = Math.random() * (height - tankSize) + tankSize / 2;
-    } while (tankCollidedWithWalls(x, y, tankSize));
+        let x = Math.random() * (width - tankSize) + tankSize / 2;
+        let y = Math.random() * (height - tankSize) + tankSize / 2;
+        tank = new Tank(x, y, "blue", tankSize);
+    } while (tank.collidedWithWalls());
 
-    return { x, y };
+    return tank;
 }
 
 const keyMap = {};
@@ -167,8 +148,7 @@ function loop(timestamp){
 }
 
 function afterMap(){
-    const tankPosition = generateRandomTankPosition(30);
-    myTank = new Tank(tankPosition.x, tankPosition.y, 'blue', 30, 3);
+    myTank = generateTank(30);
 
     window.onkeydown = (event) => {
         keyMap[event.code] = true;
