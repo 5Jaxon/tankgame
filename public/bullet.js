@@ -13,6 +13,7 @@ export const BulletType = {
         interval: 120,
         loadTime: 4000,
     },
+
     Spring: {
         id: 1,
         speed: 37,
@@ -20,11 +21,12 @@ export const BulletType = {
         damage: 13,
         size: 3.5,
         maxRebound: 10,
-        endTime: 60,
-        loadage: 12,
+        endTime: 120,
+        loadage: 24,
         interval: 70,
-        loadTime: 1300,
+        loadTime: 1800,
     },
+
     Split: {
         id: 2,
         speed: 20,
@@ -32,10 +34,10 @@ export const BulletType = {
         damage: 24,
         size: 7,
         maxRebound: 0,
-        endTime: 70,
+        endTime: 85,
         loadage: 1,
         interval: 0,
-        loadTime: 5200,
+        loadTime: 7200,
     },
 };
 
@@ -150,11 +152,12 @@ export class Bullet {
                     let detectLen = Math.abs(this.velocityX) + Math.abs(this.velocityY);
                     let l_x = this.x - detectLen, r_x = this.x + detectLen;
                     if (wall.within(l_x, this.y) || wall.within(r_x, this.y)) { // vertically hit
-                        this.velocityX = -this.velocityX;
+                        this.velocityX *= -(Math.random() * 0.3 + 0.7);
+                        this.velocityY *= (Math.random() * 0.3 + 0.7);
                     } else {                                                    // horizontally hit
-                        this.velocityY = -this.velocityY;
+                        this.velocityY *= -(Math.random() * 0.3 + 0.7);
+                        this.velocityX *= (Math.random() * 0.3 + 0.7);
                     }
-                    this.weaken(0.7)
                 } else if (this.type == BulletType.Split.id) {
                     this.split();
                 }
