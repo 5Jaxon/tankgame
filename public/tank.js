@@ -55,11 +55,15 @@ export default class Tank {
     }
 
     move(ratio) {
+        let prevX = this.x;
+        let prevY = this.y;
         const nextX = this.x + Math.cos(this.angle) * this.speed * ratio;
         const nextY = this.y + Math.sin(this.angle) * this.speed * ratio;
-        if (!this.collidedWithWalls()) {
-            this.x = (nextX + width) % width;
-            this.y = (nextY + height) % height;
+        this.x = (nextX + width) % width;
+        this.y = (nextY + height) % height;
+        if (this.collidedWithWalls()) {
+            this.x = prevX;
+            this.y = prevY;
         }
     }
 
