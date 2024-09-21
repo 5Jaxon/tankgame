@@ -62,8 +62,14 @@ export default class Tank {
         this.x = (nextX + width) % width;
         this.y = (nextY + height) % height;
         if (this.collidedWithWalls()) {
-            this.x = prevX;
-            this.y = prevY;
+            this.x = prevX;            
+            if(this.collidedWithWalls()){
+                this.x=nextX;
+                this.y=prevY;
+                if(this.collidedWithWalls()){
+                    this.x=prevX;
+                }
+            }
         }
     }
 
